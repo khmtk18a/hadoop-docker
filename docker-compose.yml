@@ -1,0 +1,45 @@
+version: '3'
+
+# https://www.baeldung.com/ops/docker-assign-static-ip-container
+# docker network create --subnet 172.0.0.0/24 local
+networks:
+  network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.0.0/16
+
+services:
+  master:
+    image: hdfs
+    command: bash -c "service ssh start && sleep infinity"
+    volumes:
+      - ./etc/hosts:/etc/hosts
+      - ./hadoop:/hadoop
+      - ./master:/hdfs
+    expose:
+      - 9000:9000
+    networks:
+      network:
+        ipv4_address: 172.20.0.2
+
+  node1:
+    image: hdfs
+    command: bash -c "service ssh start && sleep infinity"
+    volumes:
+      - ./hadoop:/hadoop
+      - ./node1:/hdfs
+    networks:
+      network:
+        ipv4_address: 172.20.0.3
+  
+  node2:
+    image: hdfs
+    command: bash -c "service ssh start && sleep infinity"
+    volumes:
+      - ./hadoop:/hadoop
+      - ./node2:/hdfs
+    networks:
+      network:
+        ipv4_address: 172.20.0.4
